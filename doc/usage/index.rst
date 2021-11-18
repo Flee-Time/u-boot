@@ -9,6 +9,7 @@ Use U-Boot
    fit
    netconsole
    partitions
+   cmdline
 
 Shell commands
 --------------
@@ -17,6 +18,7 @@ Shell commands
    :maxdepth: 1
 
    addrmap
+   askenv
    base
    bootefi
    booti
@@ -42,6 +44,7 @@ Shell commands
    reset
    sbi
    scp03
+   setexpr
    size
    true
    ums

@@ -419,7 +419,7 @@ int misc_init_r(void)
 	return 0;
 }
 
-static void get_board_rev(void)
+static void get_board_revision(void)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(struct msg_get_board_rev, msg, 1);
 	int ret;
@@ -478,7 +478,7 @@ int board_init(void)
 	hw_watchdog_init();
 #endif
 
-	get_board_rev();
+	get_board_revision();
 
 	gd->bd->bi_boot_params = 0x100;
 
@@ -488,21 +488,24 @@ int board_init(void)
 /*
  * If the firmware passed a device tree use it for U-Boot.
  */
-void *board_fdt_blob_setup(void)
+void *board_fdt_blob_setup(int *err)
 {
-	if (fdt_magic(fw_dtb_pointer) != FDT_MAGIC)
+	*err = 0;
+	if (fdt_magic(fw_dtb_pointer) != FDT_MAGIC) {
+		*err = -ENXIO;
 		return NULL;
+	}
+
 	return (void *)fw_dtb_pointer;
 }
 
 int ft_board_setup(void *blob, struct bd_info *bd)
 {
-	/*
-	 * For now, we simply always add the simplefb DT node. Later, we
-	 * should be more intelligent, and e.g. only do this if no enabled DT
-	 * node exists for the "real" graphics driver.
-	 */
-	lcd_dt_simplefb_add_node(blob);
+	int node;
+
+	node = fdt_node_offset_by_compatible(blob, -1, "simple-framebuffer");
+	if (node < 0)
+		lcd_dt_simplefb_add_node(blob);
 
 #ifdef CONFIG_EFI_LOADER
 	/* Reserve the spin table */
